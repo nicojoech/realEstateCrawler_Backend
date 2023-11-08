@@ -2,14 +2,24 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from msedge.selenium_tools import Edge, EdgeOptions
-from webdriver_manager.microsoft import EdgeChromiumDriverManager
+from webdriver_manager.firefox import GeckoDriverManager
+import time
+# from msedge.selenium_tools import Edge, EdgeOptions
+# from webdriver_manager.microsoft import EdgeChromiumDriverManager
+
+
+# def _init_driver():
+#     options = EdgeOptions()
+#     options.use_chromium = True
+#     options.add_argument('--disable-blink-features=AutomationControlled')
+#     driver = Edge(options=options, executable_path=EdgeChromiumDriverManager().install())
+#     return driver
 
 def _init_driver():
-    options = EdgeOptions()
-    options.use_chromium = True
+    options = webdriver.FirefoxOptions()
+    # options.add_argument("--headless")
     options.add_argument('--disable-blink-features=AutomationControlled')
-    driver = Edge(options=options, executable_path=EdgeChromiumDriverManager().install())
+    driver = webdriver.Firefox(options=options, executable_path=GeckoDriverManager().install())
     return driver
 
 
@@ -34,6 +44,33 @@ class Crawler:
     def close_browser(self):
         self.driver.quit()
 
+    def scroll_down(self):
+        scroll_pause_time = 0.5
+        screen_height = self.driver.execute_script("return window.innerHeight;")
+        i = 1
+
+        while True:
+            # Scroll down by half of the screen height
+            self.driver.execute_script(f"window.scrollTo(0, {screen_height * i / 2});")
+            i += 1
+
+            # Wait to load the page
+            time.sleep(scroll_pause_time)
+
+            # Calculate new scroll height and compare with last scroll height
+            new_height = self.driver.execute_script("return document.body.scrollHeight")
+
+            if (screen_height * i / 2) > new_height:
+                break  # Exit loop when the bottom of the page is reached
+
+    def wait_for_site_load(self):
+        WebDriverWait(self.driver, 5).until(
+            EC.presence_of_all_elements_located((
+                By.XPATH,
+                "//a[starts-with(@id, 'search-result-entry-header-')]"
+            ))
+        )
+
     def crawl(self):
         try:
             self.open_page(self.base_url)
@@ -52,15 +89,14 @@ class Crawler:
                 print(f"Could not find or interact with the search button: {e}")
                 return
 
-            # Additional wait to ensure page has loaded after search
-            WebDriverWait(self.driver, 10).until(
-                EC.presence_of_element_located((
-                    By.XPATH,
-                    '//div[.//a and .//button]'  # Adjusted XPath  # Again, adjust this XPath to your needs
-                ))
-            )
+            # Wait for site to load
+            self.wait_for_site_load()
 
+            # Now, scroll to ensure all dynamic content is loaded
+            self.scroll_down()
+
+            page_source = self.driver.page_source
             self.close_browser()
-            return self.driver.page_source
+            return page_source
         finally:
             self.close_browser()
