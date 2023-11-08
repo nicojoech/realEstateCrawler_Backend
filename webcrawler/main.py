@@ -2,7 +2,6 @@ from crawler import Crawler
 from extractor import Extractor
 
 
-
 def main():
     url = "https://www.willhaben.at/iad/immobilien"
 
