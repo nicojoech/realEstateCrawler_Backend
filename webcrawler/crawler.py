@@ -2,13 +2,14 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from webdriver_manager.firefox import GeckoDriverManager
-
+from msedge.selenium_tools import Edge, EdgeOptions
+from webdriver_manager.microsoft import EdgeChromiumDriverManager
 
 def _init_driver():
-    options = webdriver.FirefoxOptions()
-    # options.add_argument("--headless")
-    driver = webdriver.Firefox(options=options, executable_path=GeckoDriverManager().install())
+    options = EdgeOptions()
+    options.use_chromium = True
+    options.add_argument('--disable-blink-features=AutomationControlled')
+    driver = Edge(options=options, executable_path=EdgeChromiumDriverManager().install())
     return driver
 
 
@@ -23,7 +24,7 @@ class Crawler:
 
     def click_button(self, button_selector):
         button = WebDriverWait(self.driver, 10).until(
-            EC.element_to_be_clickable((By.CSS_SELECTOR, button_selector))
+            EC.element_to_be_clickable((By.XPATH, button_selector))
         )
         button.click()
 
@@ -34,25 +35,32 @@ class Crawler:
         self.driver.quit()
 
     def crawl(self):
-        self.open_page(self.base_url)
-
-        # Wait for cookies dialog and decline
         try:
-            self.click_button('#didomi-notice-disagree-button')
-        except Exception as e:
-            print(f"Could not find or interact with cookies dialog: {e}")
+            self.open_page(self.base_url)
 
-        # Wait for search button and click
-        self.click_button('//button[@type="button" and @data-testid="search-submit-button"]')
+            # Wait for cookies dialog and decline
+            try:
+                self.click_button('//*[@id="didomi-notice-disagree-button"]')
+            except Exception as e:
+                print(f"Could not find or interact with cookies dialog: {e}")
+                return
 
-        # Wait for page to load
-        WebDriverWait(self.driver, 10).until(
-            EC.presence_of_element_located((
-                By.XPATH,
-                # This is the div that contains a real estate entry
-                '//div[contains(@class, "Box-sc-*")]'
-            ))
-        )
+            # Wait for search button and click
+            try:
+                self.click_button('//button[@type="button" and @data-testid="search-submit-button"]')
+            except Exception as e:
+                print(f"Could not find or interact with the search button: {e}")
+                return
 
-        self.close_browser()
-        self.get_page_source()
+            # Additional wait to ensure page has loaded after search
+            WebDriverWait(self.driver, 10).until(
+                EC.presence_of_element_located((
+                    By.XPATH,
+                    '//div[.//a and .//button]'  # Adjusted XPath  # Again, adjust this XPath to your needs
+                ))
+            )
+
+            self.close_browser()
+            return self.driver.page_source
+        finally:
+            self.close_browser()

@@ -1,8 +1,6 @@
 from crawler import Crawler
 from extractor import Extractor
-import os
-import json
-from datetime import datetime
+
 
 
 def main():
