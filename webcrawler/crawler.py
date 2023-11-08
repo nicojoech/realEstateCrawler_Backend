@@ -2,12 +2,13 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from webdriver_manager.firefox import GeckoDriverManager
 
 
 def _init_driver():
-    options = webdriver.ChromeOptions()
-    options.add_argument("--headless")
-    driver = webdriver.Chrome(options=options)
+    options = webdriver.FirefoxOptions()
+    # options.add_argument("--headless")
+    driver = webdriver.Firefox(options=options, executable_path=GeckoDriverManager().install())
     return driver
 
 
@@ -17,22 +18,35 @@ class Crawler:
         self.base_url = base_url
         self.driver = _init_driver()
 
-    def crawl(self):
-        self.driver.get(self.base_url)
+    def open_page(self, url):
+        self.driver.get(url)
 
-        # Wait for button to be clickable/loaded
-        wait = WebDriverWait(self.driver, 10)
-        button = wait.until(
-            EC.element_to_be_clickable((
-                By.XPATH,
-                '//button[@type="button" and @data-testid="search-submit-button"]'
-            ))
+    def click_button(self, button_selector):
+        button = WebDriverWait(self.driver, 10).until(
+            EC.element_to_be_clickable((By.CSS_SELECTOR, button_selector))
         )
-
         button.click()
 
+    def get_page_source(self):
+        return self.driver.page_source
+
+    def close_browser(self):
+        self.driver.quit()
+
+    def crawl(self):
+        self.open_page(self.base_url)
+
+        # Wait for cookies dialog and decline
+        try:
+            self.click_button('#didomi-notice-disagree-button')
+        except Exception as e:
+            print(f"Could not find or interact with cookies dialog: {e}")
+
+        # Wait for search button and click
+        self.click_button('//button[@type="button" and @data-testid="search-submit-button"]')
+
         # Wait for page to load
-        wait.until(
+        WebDriverWait(self.driver, 10).until(
             EC.presence_of_element_located((
                 By.XPATH,
                 # This is the div that contains a real estate entry
@@ -40,6 +54,5 @@ class Crawler:
             ))
         )
 
-        page_source = self.driver.page_source
-        self.driver.quit()
-        return page_source
+        self.close_browser()
+        self.get_page_source()
