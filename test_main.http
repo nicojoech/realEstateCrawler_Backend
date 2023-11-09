@@ -9,3 +9,15 @@ GET http://127.0.0.1:8000/hello/User
 Accept: application/json
 
 ###
+
+POST http://127.0.0.1:8000/users/
+Content-Type: application/json
+
+{
+"id": 2,
+"first_name": "Nico",
+"last_name": "Test",
+"email": "nico.test@test.com",
+"username": "Nicotest",
+"password": "1234"
+}
