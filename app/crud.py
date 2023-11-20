@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 
 from app import schemas, models
+import bcrypt
 
 
 def get_user(db: Session, user_id: int):
@@ -16,8 +17,10 @@ def get_users(db: Session, skip: int = 0, limit: int = 100):
 
 
 def create_user(db: Session, user: schemas.UserSchema):
+    salt = bcrypt.gensalt(rounds=12)
+    hashed_password = bcrypt.hashpw(user.password.encode('utf-8'), salt)
     db_user = models.User(first_name=user.first_name, last_name=user.last_name, email=user.email,
-                          username=user.username, password=user.password)
+                          username=user.username, password=hashed_password)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
