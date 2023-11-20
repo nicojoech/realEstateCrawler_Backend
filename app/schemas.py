@@ -2,7 +2,6 @@ from pydantic import BaseModel
 
 
 class UserSchema(BaseModel):
-    id: int
     first_name: str
     last_name: str
     email: str
@@ -11,3 +10,7 @@ class UserSchema(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class UserSchemaResponse(UserSchema):
+    id: int

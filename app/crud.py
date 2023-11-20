@@ -22,3 +22,13 @@ def create_user(db: Session, user: schemas.UserSchema):
     db.commit()
     db.refresh(db_user)
     return db_user
+
+
+def delete_user(db: Session, user_id: int):
+    user_to_delete = db.query(models.User).filter(models.User.id == user_id).first()
+
+    if user_to_delete:
+        db.delete(user_to_delete)
+        db.commit()
+
+    return user_to_delete
