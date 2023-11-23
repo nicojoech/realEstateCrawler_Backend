@@ -5,7 +5,12 @@ from extractor import Extractor
 def main():
     url = "https://www.willhaben.at/iad/immobilien"
 
-    crawler = Crawler(base_url=url)
+    filters_dict = {
+        "max_price": "300",
+        "min_area": "50"
+    }
+
+    crawler = Crawler(base_url=url, filters_dict=filters_dict)
     page_source = crawler.crawl()
 
     extractor = Extractor(page_source)

@@ -1,3 +1,7 @@
+"""
+This file contains the Extractor class which is responsible for extracting data from the HTML.
+Extracted data gets saved to a JSON file.
+"""
 from bs4 import BeautifulSoup
 import json
 import os
@@ -32,6 +36,23 @@ class Extractor:
         return entries_list  # Ensure this is returned
 
     def save_data(self, data):
+        """
+        Saves the provided data to a JSON file.
+        This method saves data to a JSON file in a directory named 'crawled_data'. The filename
+        is generated based on the current date and time, ensuring that each saved file has a
+        unique name. If the 'crawled_data' directory does not exist, it is created.
+
+        Args:
+            data: The data to be saved. This should be a data structure that is compatible with
+              json.dump(), such as a dict or a list.
+
+        Returns:
+            None: This method does not return any value.
+
+        Note:
+            - Ensure that the 'data' parameter is in a format that can be serialized to JSON.
+            - The datetime module and os.path are used for generating the file path.
+        """
         dir_name = './crawled_data'
         file_name = datetime.now().strftime("%Y-%m-%d-%H-%M") + '.json'
         file_path = os.path.join(dir_name, file_name)
