@@ -3,10 +3,10 @@ Content-Type: application/json
 
 {
 "first_name": "Nico",
-"last_name": "Teeset",
-"email": "test@qr.com",
-"username": "tqe",
-"password": "dasPasswortasdqweqerqwerqwr"
+"last_name": "Jöch",
+"email": "nico@nicon.com",
+"username": "nicoJoech",
+"password": "nico"
 }
 
 ###
@@ -16,10 +16,15 @@ Accept: application/json
 
 ###
 
-GET http://127.0.0.1:8000/users/2
+GET http://127.0.0.1:8000/test
+Accept: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJuaWNvIiwiZXhwIjoxNzAxNzExNTU1fQ.6_aAeb7ROw9h6Wr9QIG9LkwMQSx1jhcy7BIwAgSTxkM
+
+###
+
+GET http://127.0.0.1:8000/test
 Accept: application/json
 
 ###
 
-DELETE http://127.0.0.1:8000/users/12
-Accept: application/json
+DELETE http://127.0.0.1:8000/users/1
