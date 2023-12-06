@@ -5,12 +5,31 @@ Extracted data gets saved to a JSON file.
 from bs4 import BeautifulSoup
 import json
 import os
+import re
 from datetime import datetime
 
 
 class Extractor:
     def __init__(self, html):
         self.soup = BeautifulSoup(html, 'html.parser')
+
+    def _extract_text(self, entry, css_selector=None, tag_name=None, attrs=None, pattern=None):
+        """
+        Extracts text from an entry based on provided css_selector, tag_name, attrs, or pattern.
+        """
+        if pattern:
+            # Regex pattern based extraction
+            element = entry.find(lambda tag: tag.name == "div" and pattern.match(tag.get('data-testid', '')))
+        elif css_selector:
+            # CSS Selector based extraction
+            element = entry.select_one(css_selector)
+        elif tag_name:
+            # Tag name and attributes based extraction
+            element = entry.find(tag_name, attrs)
+        else:
+            return None
+
+        return element.get_text(strip=True) if element else None
 
     def extract_data(self):
         # Debugging line
@@ -20,13 +39,19 @@ class Extractor:
 
         entries_list = []
         for entry in entries:
+            # Regex patterns for area and number of rooms
+            area_pattern = re.compile(r'search-result-entry-teaser-attributes-\d+-0')
+            rooms_pattern = re.compile(r'search-result-entry-teaser-attributes-\d+-1')
+            additional_info_pattern = re.compile(r'search-result-entry-teaser-attributes-\d+-2')
+
             entry_data = {
                 'link': entry.get('href'),
-                'title': entry.find('h3').get_text(strip=True) if entry.find('h3') else None,
-                'address': entry.find('span', {'aria-label': True}).get_text(strip=True) if entry.find('span', {
-                    'aria-label': True}) else None,
-                'price': entry.select_one('span[data-testid^="search-result-entry-price"]').get_text(strip=True)
-                if entry.select_one('span[data-testid^="search-result-entry-price"]') else None
+                'title': self._extract_text(entry, tag_name='h3'),
+                'address': self._extract_text(entry, tag_name='span', attrs={'aria-label': True}),
+                'area': self._extract_text(entry, pattern=area_pattern),
+                'number_of_rooms': self._extract_text(entry, pattern=rooms_pattern),
+                'additional_info': self._extract_text(entry, pattern=additional_info_pattern),
+                'price': self._extract_text(entry, css_selector='span[data-testid^="search-result-entry-price"]')
             }
             entries_list.append(entry_data)
 
