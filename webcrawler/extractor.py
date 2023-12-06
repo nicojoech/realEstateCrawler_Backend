@@ -39,6 +39,9 @@ class Extractor:
         entries = self.soup.select('a[id^="search-result-entry-header-"]')
 
         entries_list = []
+
+        print(f"Found {len(entries)} entries - Extracting data")
+
         for entry in entries:
             # Regex patterns for area and number of rooms
             area_pattern = re.compile(r'search-result-entry-teaser-attributes-\d+-0')
@@ -79,6 +82,8 @@ class Extractor:
             - Ensure that the 'data' parameter is in a format that can be serialized to JSON.
             - The datetime module and os.path are used for generating the file path.
         """
+        print("Saving data to JSON file")
+
         dir_name = './crawled_data'
         file_name = datetime.now().strftime("%Y-%m-%d-%H-%M") + '.json'
         file_path = os.path.join(dir_name, file_name)
