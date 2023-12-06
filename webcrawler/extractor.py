@@ -13,7 +13,8 @@ class Extractor:
     def __init__(self, html):
         self.soup = BeautifulSoup(html, 'html.parser')
 
-    def _extract_text(self, entry, css_selector=None, tag_name=None, attrs=None, pattern=None):
+    @staticmethod
+    def _extract_text(entry, css_selector=None, tag_name=None, attrs=None, pattern=None):
         """
         Extracts text from an entry based on provided css_selector, tag_name, attrs, or pattern.
         """
