@@ -14,6 +14,34 @@ class Extractor:
         self.soup = BeautifulSoup(html, 'html.parser')
 
     @staticmethod
+    def _zip_code_to_state(self, zip_code):
+        """
+        Helper function to map zip codes to states.
+        Taken from: http://www.mcca.or.at/info/at/idxplz.htm
+        """
+        if zip_code:
+            first_digit = int(zip_code[0])
+            if first_digit == 1:
+                return 'Wien'
+            elif first_digit == 2:
+                return 'Niederösterreich, Burgenland/Nord'
+            elif first_digit == 3:
+                return 'Niederösterreich'
+            elif first_digit == 4:
+                return 'Oberösterreich'
+            elif first_digit == 5:
+                return 'Salzburg'
+            elif first_digit == 6:
+                return 'Tirol, Vorarlberg'
+            elif first_digit == 7:
+                return 'Burgenland/Süd'
+            elif first_digit == 8:
+                return 'Steiermark'
+            elif first_digit == 9:
+                return 'Kärnten'
+        return None
+
+    @staticmethod
     def _extract_text(entry, css_selector=None, tag_name=None, attrs=None, pattern=None):
         """
         Extracts text from an entry based on provided css_selector, tag_name, attrs, or pattern.
@@ -47,7 +75,7 @@ class Extractor:
                     # Replace comma with dot for decimal
                     num = float(match.group(1).replace(',', '.'))
                     # Format to 2 decimal places
-                    return "{:.2f}".format(num)
+                    return float("{:.2f}".format(num))
 
             # For other cases, extract the numeric part and convert to int
             else:
