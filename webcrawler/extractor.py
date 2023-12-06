@@ -14,7 +14,7 @@ class Extractor:
         self.soup = BeautifulSoup(html, 'html.parser')
 
     @staticmethod
-    def _zip_code_to_state(self, zip_code):
+    def _zip_code_to_state(zip_code):
         """
         Helper function to map zip codes to states.
         Taken from: http://www.mcca.or.at/info/at/idxplz.htm
@@ -150,6 +150,30 @@ class Extractor:
         # print(entries_list)
 
         return entries_list  # Ensure this is returned
+
+    def filter_data(self, data, zip_code=None, number_of_rooms=None, state=None):
+        """
+        Filters the data based on ZIP code, number of rooms, and state.
+        """
+        filtered_data = []
+        for entry in data:
+            entry_state = self._zip_code_to_state(entry['address']['zip_code'])
+
+            # Apply ZIP code filter
+            if zip_code and entry['address']['zip_code'] != zip_code:
+                continue
+
+            # Apply number of rooms filter
+            if number_of_rooms and entry.get('number_of_rooms') != number_of_rooms:
+                continue
+
+            # Apply state filter
+            if state and entry_state != state:
+                continue
+
+            filtered_data.append(entry)
+
+        return filtered_data
 
     def save_data(self, data):
         """
