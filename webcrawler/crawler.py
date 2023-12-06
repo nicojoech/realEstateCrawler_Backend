@@ -23,7 +23,7 @@ import time
 
 def _init_driver():
     options = webdriver.FirefoxOptions()
-    # options.add_argument("--headless")
+    options.add_argument("--headless")
     options.add_argument('--disable-blink-features=AutomationControlled')
     driver = webdriver.Firefox(options=options, executable_path=GeckoDriverManager().install())
     return driver
