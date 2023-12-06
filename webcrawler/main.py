@@ -1,6 +1,6 @@
 from crawler import Crawler
 from extractor import Extractor
-
+import sys
 
 def main():
     url = "https://www.willhaben.at/iad/immobilien"
@@ -16,7 +16,7 @@ def main():
     extractor = Extractor(page_source)
     data = extractor.extract_data()
     extractor.save_data(data)
-
+    sys.exit(0)
 
 if __name__ == '__main__':
     main()
