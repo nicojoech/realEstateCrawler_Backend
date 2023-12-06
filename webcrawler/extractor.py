@@ -56,6 +56,31 @@ class Extractor:
                     return int(match.group())
         return None
 
+    @staticmethod
+    def _parse_address(address):
+        """
+        Parses the address into ZIP Code, City, Street, and District (if applicable).
+        """
+        if not address:
+            return {"zip_code": None, "city": None, "street": None, "district": None}
+
+            # Split the address into components
+        parts = address.split(', ')
+        zip_and_city = parts[0].split()
+        zip_code = zip_and_city[0]
+        city = ' '.join(zip_and_city[1:])
+
+        street = parts[1] if len(parts) > 1 else None
+        district = None
+
+        # Special handling for Vienna addresses
+        if city == "Wien" and len(parts) > 2:
+            # Extracting the district number
+            district = parts[1].split('.')[0] + '. Bezirk'
+            street = parts[2] if len(parts) > 2 else None
+
+        return {"zip_code": zip_code, "city": city, "street": street, "district": district}
+
     def extract_data(self):
         # Debugging line
         # print(self.soup.prettify())
@@ -72,10 +97,13 @@ class Extractor:
             rooms_pattern = re.compile(r'search-result-entry-teaser-attributes-\d+-1')
             additional_info_pattern = re.compile(r'search-result-entry-teaser-attributes-\d+-2')
 
+            address = self._extract_text(entry, tag_name='span', attrs={'aria-label': True})
+            parsed_address = self._parse_address(address)
+
             entry_data = {
                 'link': entry.get('href'),
                 'title': self._extract_text(entry, tag_name='h3'),
-                'address': self._extract_text(entry, tag_name='span', attrs={'aria-label': True}),
+                'address': parsed_address,
 
                 'area': self._extract_numeric_part(
                     self._extract_text(entry, pattern=area_pattern)
