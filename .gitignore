@@ -1,4 +1,5 @@
 .idea/
 
-/webcrawler/geckodriver.log
-/webcrawler/crawled_data/*
+/app/services/webcrawlerService/geckodriver.log
+/app/services/webcrawlerService/crawled_data/*
+.env
