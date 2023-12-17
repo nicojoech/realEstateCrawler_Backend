@@ -1,0 +1,64 @@
+import smtplib
+import re
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from config import EMAIL_SENDER, EMAIL_PASSWORD, SMTP_SERVER, SMTP_PORT
+
+
+def is_valid_email(email: str) -> bool:
+    """
+    Checks if the given email address is valid using a regex pattern
+    :param email: email address to check
+    :return: True if the email address is valid, False otherwise
+    """
+    pattern = re.compile(r'^[\w.-]+@[\w.-]+\.\w+$')
+    return pattern.match(email) is not None
+
+
+def create_message(receiver: str, body: str) -> str:
+    """
+    Creates a MIME message with the given receiver and body and returns it as a string.
+    Subject is set to "RealEstateCrawler - Nofication". To be changed later on
+    either Matching Listings found or simply Notification still running
+    :param receiver: email address of the receiver goes through a check for syntax validity
+    :param body: content of the email
+    :return: MIME message as a string
+    """
+    message = MIMEMultipart()
+    message["From"] = EMAIL_SENDER
+    message["To"] = receiver
+    message["Subject"] = "RealEstateCrawler - Nofication"
+    message.attach(MIMEText(body, "plain"))
+
+    return message.as_string()
+
+
+def send(receiver: str, body: str) -> None:
+    """
+    Sends an email to the given receiver with the given body
+    Does not send if the receiver is not a valid email address
+    :param receiver:
+    :param body:
+    :return:
+    """
+    if not is_valid_email(receiver):
+        print(f"Invalid email address: {receiver}")
+        return
+
+    message = create_message(receiver, body)
+    try:
+        with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
+            server.set_debuglevel(1)
+            server.starttls()
+            server.login(EMAIL_SENDER, EMAIL_PASSWORD)
+            server.sendmail(EMAIL_SENDER, receiver, message)
+        print(f"Successfully sent email to {receiver}")
+    except Exception as e:
+        print(f"Failed to send email: {e}")
+
+
+def main():
+    send("wi21b026@technikum-wien.at", "This is a test email.")
+
+if __name__ == '__main__':
+    main()
