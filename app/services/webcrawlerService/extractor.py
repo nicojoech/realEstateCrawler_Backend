@@ -195,7 +195,7 @@ class Extractor:
         """
         print("Saving data to JSON file")
 
-        dir_name = './crawled_data'
+        dir_name = 'crawled_data'
         file_name = datetime.now().strftime("%Y-%m-%d-%H-%M") + '.json'
         file_path = os.path.join(dir_name, file_name)
         if not os.path.exists(dir_name):

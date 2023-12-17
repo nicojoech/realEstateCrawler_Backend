@@ -16,7 +16,7 @@ def main():
 
     extractor = Extractor(page_source)
     data = extractor.extract_data()
-    filtered_data = extractor.filter_data(data=data, zip_code="4600", number_of_rooms=3)
+    filtered_data = extractor.filter_data(data=data, zip_code="8020", number_of_rooms=4)
     extractor.save_data(filtered_data)
     sys.exit(0)
 
