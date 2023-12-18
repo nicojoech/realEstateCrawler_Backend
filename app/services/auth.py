@@ -44,7 +44,7 @@ def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()],):
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_jwt_token({"sub": user.username}, expires_delta=access_token_expires)
 
-    return {"access_token": access_token, "token_type": "bearer"}
+    return {"access_token": access_token, "token_type": "bearer", "username": user.username}
 
 
 def create_jwt_token(data: dict, expires_delta: timedelta = None):
