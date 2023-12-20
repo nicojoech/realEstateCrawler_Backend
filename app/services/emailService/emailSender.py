@@ -18,7 +18,7 @@ def is_valid_email(email: str) -> bool:
 def create_message(receiver: str, body: str) -> str:
     """
     Creates a MIME message with the given receiver and body and returns it as a string.
-    Subject is set to "RealEstateCrawler - Nofication". To be changed later on
+    Subject is set to "RealEstateCrawler - Notification". To be changed later on
     either Matching Listings found or simply Notification still running
     :param receiver: email address of the receiver goes through a check for syntax validity
     :param body: content of the email
@@ -27,7 +27,7 @@ def create_message(receiver: str, body: str) -> str:
     message = MIMEMultipart()
     message["From"] = EMAIL_SENDER
     message["To"] = receiver
-    message["Subject"] = "RealEstateCrawler - Nofication"
+    message["Subject"] = "RealEstateCrawler - Notification"
     message.attach(MIMEText(body, "plain"))
 
     return message.as_string()
@@ -59,6 +59,7 @@ def send(receiver: str, body: str) -> None:
 
 def main():
     send("wi21b026@technikum-wien.at", "This is a test email.")
+
 
 if __name__ == '__main__':
     main()
