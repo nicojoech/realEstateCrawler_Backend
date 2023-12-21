@@ -3,7 +3,7 @@ import time
 from datetime import datetime, timedelta
 from app.services.webcrawlerService.crawler import Crawler
 from app.services.webcrawlerService.extractor import Extractor
-from app.services.emailService.emailSender import send
+from app.services.emailService.emailSender import send, send_formatted_listings
 
 
 class Scheduler:
@@ -68,13 +68,13 @@ class Scheduler:
                                listing['link'] not in self.processed_listings]
             if unique_listings:
                 self.found_listings.extend(unique_listings)
-                send(self.receiver_email, f"New listings found: {unique_listings}")
+                send_formatted_listings(self.receiver_email, unique_listings)
                 self.processed_listings.update(listing['link'] for listing in unique_listings)
 
                 # Use an interruptable wait instead of time.sleep()
                 self.stop_requested.wait(
-                    self.interval_hours * 3600)  # Wait for the next interval 3600 because hourly in seconds
-                    # self.interval_hours * 120)  # for testing purposes
+                    # self.interval_hours * 3600)  # Wait for the next interval 3600 because hourly in seconds
+                    self.interval_hours * 120)  # for testing purposes
 
         # Send final notification
         if self.stop_requested.is_set():
@@ -94,7 +94,7 @@ class Scheduler:
         """
 
         self.start_time = datetime.now()
-        self.end_time = self.start_time + timedelta(hours=self.duration_hours)#0.05)
+        self.end_time = self.start_time + timedelta(minutes=2)#hours=self.duration_hours)
         crawling_thread = threading.Thread(target=self._crawl)
         crawling_thread.start()
 
@@ -114,7 +114,7 @@ class Scheduler:
 
 def main():
     service = Scheduler(interval_hours=1, duration_hours=1, receiver_email="wi21b026@technikum-wien.at",
-                        crawler_filter={"max_price": "300", "min_area": "50"}, zip_code="1100", number_of_rooms=3)
+                        crawler_filter={"max_price": "300", "min_area": "50"}, zip_code="3202", number_of_rooms=2)
     service.start_crawling()
 
 

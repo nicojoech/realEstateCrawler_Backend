@@ -5,6 +5,34 @@ from email.mime.multipart import MIMEMultipart
 from app.services.emailService.config import EMAIL_SENDER, EMAIL_PASSWORD, SMTP_SERVER, SMTP_PORT
 
 
+def format_listings(listings: list) -> str:
+    """
+    Formats the given listings into a string
+    :param listings: list of listings to format
+    :return: formatted string
+    """
+    formatted_listings = []
+    for listing in listings:
+        # Format the address
+        address_parts = [listing['address'][part] for part in ['zip_code', 'city', 'street', 'district'] if
+                         listing['address'].get(part)]
+        address = ', '.join(address_parts)
+
+        # Format the listing details
+        details = (
+            f"Link: https://www.willhaben.at{listing['link']}\n"
+            f"Title: {listing.get('title') or 'N/A'}\n"
+            f"Address: {address}\n"
+            f"Area: {listing.get('area')}m²\n"
+            f"Rooms: {listing.get('number_of_rooms')}\n"
+            f"Additional Info: {listing.get('additional_info', 'N/A')}\n"
+            f"Price: €{listing.get('price')}\n"
+        )
+
+        formatted_listings.append(details)
+        return "\n\n".join(formatted_listings)
+
+
 def is_valid_email(email: str) -> bool:
     """
     Checks if the given email address is valid using a regex pattern
@@ -48,13 +76,25 @@ def send(receiver: str, body: str) -> None:
     message = create_message(receiver, body)
     try:
         with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
-            server.set_debuglevel(1)
+            server.set_debuglevel(0)
             server.starttls()
             server.login(EMAIL_SENDER, EMAIL_PASSWORD)
             server.sendmail(EMAIL_SENDER, receiver, message)
         print(f"Successfully sent email to {receiver}")
     except Exception as e:
         print(f"Failed to send email: {e}")
+
+
+def send_formatted_listings(receiver: str, listings: list) -> None:
+    """
+    Formats the listings and sends them in an email to the specified receiver.
+
+    :param receiver: Receiver's email address.
+    :param listings: List of listing dictionaries to format and send.
+    """
+    if listings:
+        formatted_body = "Listings found:\n\n" + format_listings(listings)
+        send(receiver, formatted_body)
 
 
 def main():
