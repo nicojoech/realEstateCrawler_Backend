@@ -74,13 +74,17 @@ class Scheduler:
                 # Use an interruptable wait instead of time.sleep()
                 self.stop_requested.wait(
                     self.interval_hours * 3600)  # Wait for the next interval 3600 because hourly in seconds
+                    # self.interval_hours * 120)  # for testing purposes
 
         # Send final notification
         if self.stop_requested.is_set():
+            print("Crawling process has been manually stopped.")
             send(self.receiver_email, "Crawling process has been manually stopped.")
         elif self.found_listings:
+            print(f"Number of findings: {len(self.found_listings)}")
             send(self.receiver_email, f"Summary of findings: {self.found_listings}")
         else:
+            print("No listings found during the crawling period.")
             send(self.receiver_email, "No listings found during the crawling period.")
 
     def start_crawling(self) -> None:
@@ -90,11 +94,12 @@ class Scheduler:
         """
 
         self.start_time = datetime.now()
-        self.end_time = self.start_time + timedelta(hours=self.duration_hours)
+        self.end_time = self.start_time + timedelta(hours=self.duration_hours)#0.05)
         crawling_thread = threading.Thread(target=self._crawl)
         crawling_thread.start()
 
         # Optional: Send a notification that the service has started
+        print("Crawling service has started.")
         send(self.receiver_email, "Crawling service has started.")
 
     def stop_crawling(self):
@@ -103,4 +108,15 @@ class Scheduler:
         """
         self.stop_requested.set()
         if self.crawling_thread:
+            print("Waiting for crawling thread to finish...")
             self.crawling_thread.join()
+
+
+def main():
+    service = Scheduler(interval_hours=1, duration_hours=1, receiver_email="wi21b026@technikum-wien.at",
+                        crawler_filter={"max_price": "300", "min_area": "50"}, zip_code="1100", number_of_rooms=3)
+    service.start_crawling()
+
+
+if __name__ == '__main__':
+    main()
