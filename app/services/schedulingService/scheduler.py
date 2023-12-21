@@ -3,7 +3,7 @@ import time
 from datetime import datetime, timedelta
 from app.services.webcrawlerService.crawler import Crawler
 from app.services.webcrawlerService.extractor import Extractor
-from app.services.emailService.emailSender import send, send_formatted_listings
+from app.services.emailService.emailSender import send, format_listings
 
 
 class Scheduler:
@@ -68,24 +68,26 @@ class Scheduler:
                                listing['link'] not in self.processed_listings]
             if unique_listings:
                 self.found_listings.extend(unique_listings)
-                send_formatted_listings(self.receiver_email, unique_listings)
+                send(self.receiver_email, "Found Listings",
+                     f"New Listings found: \n {format_listings(unique_listings)}")
                 self.processed_listings.update(listing['link'] for listing in unique_listings)
 
                 # Use an interruptable wait instead of time.sleep()
                 self.stop_requested.wait(
-                    # self.interval_hours * 3600)  # Wait for the next interval 3600 because hourly in seconds
-                    self.interval_hours * 120)  # for testing purposes
+                    self.interval_hours * 3600)  # Wait for the next interval 3600 because hourly in seconds
+                # self.interval_hours * 120)  # for testing purposes
 
         # Send final notification
         if self.stop_requested.is_set():
             print("Crawling process has been manually stopped.")
-            send(self.receiver_email, "Crawling process has been manually stopped.")
+            send(self.receiver_email, "Crawler Stopped", "Crawling process has been manually stopped.")
         elif self.found_listings:
             print(f"Number of findings: {len(self.found_listings)}")
-            send(self.receiver_email, f"Summary of findings: {self.found_listings}")
+            send(self.receiver_email, "Crawler Finished",
+                 f"Summary of findings: {format_listings(self.found_listings)}")
         else:
             print("No listings found during the crawling period.")
-            send(self.receiver_email, "No listings found during the crawling period.")
+            send(self.receiver_email, "Crawler Finished", "No listings found during the crawling period.")
 
     def start_crawling(self) -> None:
         """
@@ -94,13 +96,13 @@ class Scheduler:
         """
 
         self.start_time = datetime.now()
-        self.end_time = self.start_time + timedelta(minutes=2)#hours=self.duration_hours)
+        self.end_time = self.start_time + timedelta(hours=self.duration_hours)
         crawling_thread = threading.Thread(target=self._crawl)
         crawling_thread.start()
 
         # Optional: Send a notification that the service has started
         print("Crawling service has started.")
-        send(self.receiver_email, "Crawling service has started.")
+        send(self.receiver_email, "Crawler Started", "Crawling service has started.")
 
     def stop_crawling(self):
         """

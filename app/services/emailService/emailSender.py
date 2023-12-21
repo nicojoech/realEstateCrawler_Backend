@@ -43,11 +43,12 @@ def is_valid_email(email: str) -> bool:
     return pattern.match(email) is not None
 
 
-def create_message(receiver: str, body: str) -> str:
+def create_message(receiver: str, subject: str, body: str) -> str:
     """
     Creates a MIME message with the given receiver and body and returns it as a string.
     Subject is set to "RealEstateCrawler - Notification". To be changed later on
     either Matching Listings found or simply Notification still running
+    :param subject:  subject of the email
     :param receiver: email address of the receiver goes through a check for syntax validity
     :param body: content of the email
     :return: MIME message as a string
@@ -55,16 +56,17 @@ def create_message(receiver: str, body: str) -> str:
     message = MIMEMultipart()
     message["From"] = EMAIL_SENDER
     message["To"] = receiver
-    message["Subject"] = "RealEstateCrawler - Notification"
+    message["Subject"] = f"RealEstateCrawler - {subject}"
     message.attach(MIMEText(body, "plain"))
 
     return message.as_string()
 
 
-def send(receiver: str, body: str) -> None:
+def send(receiver: str, subject: str, body: str) -> None:
     """
     Sends an email to the given receiver with the given body
     Does not send if the receiver is not a valid email address
+    :param subject:
     :param receiver:
     :param body:
     :return:
@@ -73,10 +75,10 @@ def send(receiver: str, body: str) -> None:
         print(f"Invalid email address: {receiver}")
         return
 
-    message = create_message(receiver, body)
+    message = create_message(receiver, subject, body)
     try:
         with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
-            server.set_debuglevel(0)
+            # server.set_debuglevel(0)
             server.starttls()
             server.login(EMAIL_SENDER, EMAIL_PASSWORD)
             server.sendmail(EMAIL_SENDER, receiver, message)
@@ -85,20 +87,8 @@ def send(receiver: str, body: str) -> None:
         print(f"Failed to send email: {e}")
 
 
-def send_formatted_listings(receiver: str, listings: list) -> None:
-    """
-    Formats the listings and sends them in an email to the specified receiver.
-
-    :param receiver: Receiver's email address.
-    :param listings: List of listing dictionaries to format and send.
-    """
-    if listings:
-        formatted_body = "Listings found:\n\n" + format_listings(listings)
-        send(receiver, formatted_body)
-
-
 def main():
-    send("wi21b026@technikum-wien.at", "This is a test email.")
+    send("wi21b026@technikum-wien.at", "Testing Email Service", "This is a test email.")
 
 
 if __name__ == '__main__':
