@@ -33,7 +33,7 @@ class Crawler:
 
     def __init__(self, base_url, filters_dict):
         self.base_url = base_url
-        self.driver = _init_driver()
+        self.driver = None
         self.filters_dict = filters_dict
 
     def open_page(self, url):
@@ -79,7 +79,9 @@ class Crawler:
         )
 
     def crawl(self):
+        self.driver = _init_driver()
         try:
+            print("Crawling...")
             self.open_page(self.base_url)
 
             # Wait for cookies dialog and decline
@@ -108,6 +110,7 @@ class Crawler:
 
             page_source = self.driver.page_source
             self.close_browser()
+            print("Crawling finished. Browser closed.")
             return page_source
         finally:
             self.close_browser()
