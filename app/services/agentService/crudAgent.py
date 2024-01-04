@@ -15,6 +15,7 @@ def create_crawler_agent(db: Session, agent: schemas.CrawlerAgent):
         number_of_rooms=agent.number_of_rooms,
         zip_code=agent.zip_code,
         state=agent.state,
+        user_id=agent.user_id
     )
     db.add(db_agent)
     db.commit()

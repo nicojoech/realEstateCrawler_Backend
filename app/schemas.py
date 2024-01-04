@@ -33,6 +33,7 @@ class CrawlerAgent(BaseModel):
     number_of_rooms: int
     zip_code: str
     state: str
+    user_id: int
 
     class Config:
         from_attributes = True
