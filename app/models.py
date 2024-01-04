@@ -19,10 +19,8 @@ class CrawlerAgent(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True)
-    min_area = Column(Float)
-    max_price = Column(Float)
+    min_area = Column(String)
+    max_price = Column(String)
     number_of_rooms = Column(Integer)
     zip_code = Column(String)
     state = Column(String)
-    rent = Column(Boolean)
-    type = Column(String)

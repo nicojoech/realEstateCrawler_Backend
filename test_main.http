@@ -34,15 +34,19 @@ POST http://127.0.0.1:8000/agents/
 Content-Type: application/json
 
 {
-  "name": "TestCrawler",
+  "name": "OtherNiceCrawler",
   "min_area": "50",
   "max_price": "300",
-  "number_of_rooms": 4,
-  "zip_code": "1100",
-  "state": "Wien",
-  "rent": true,
-  "type": "Appartment"
+  "number_of_rooms": 3,
+  "zip_code": "3004",
+  "state": "Wien"
 }
 
 ###
 DELETE http://127.0.0.1:8000/agents/1
+
+###
+POST http://127.0.0.1:8000/agents/1
+
+###
+POST http://127.0.0.1:8000/agents/2

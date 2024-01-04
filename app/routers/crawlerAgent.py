@@ -25,3 +25,8 @@ def create_agent(agent: schemas.CrawlerAgent, db: Session = Depends(get_db)):
 def delete_agent(agent_id: int, db: Session = Depends(get_db)):
     return crudAgent.delete_crawler_agent(db=db, agent_id=agent_id)
 
+
+@router.post("/agents/{agent_id}")
+def start_agent(agent_id: int, db: Session = Depends(get_db)):
+    return crudAgent.start_crawler_agent(db=db, agent_id=agent_id)
+

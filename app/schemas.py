@@ -28,13 +28,11 @@ class TokenData(BaseModel):
 
 class CrawlerAgent(BaseModel):
     name: str
-    min_area: int
-    max_price: int
+    min_area: str
+    max_price: str
     number_of_rooms: int
     zip_code: str
     state: str
-    rent: bool
-    type: str
 
     class Config:
         from_attributes = True
