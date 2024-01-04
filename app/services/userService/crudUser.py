@@ -16,6 +16,10 @@ def get_users(db: Session, skip: int = 0, limit: int = 100):
     return db.query(models.User).offset(skip).limit(limit).all()
 
 
+def get_agents_from_user(db: Session, user_id: int):
+    return db.query(models.CrawlerAgent).filter(models.CrawlerAgent.user_id == user_id).all()
+
+
 def create_user(db: Session, user: schemas.UserSchema):
     hashed_password = get_password_hash(user.password)
     db_user = models.User(first_name=user.first_name, last_name=user.last_name, email=user.email,
