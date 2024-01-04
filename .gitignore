@@ -3,4 +3,6 @@
 /app/services/webcrawlerService/geckodriver.log
 /app/services/schedulingService/geckodriver.log
 /app/services/webcrawlerService/crawled_data/*
+/geckodriver.log
+/requests.http
 .env
