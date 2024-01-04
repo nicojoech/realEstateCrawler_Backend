@@ -20,6 +20,7 @@ class Token(BaseModel):
     access_token: str
     token_type: str
     username: str
+    userId: int
 
 
 class TokenData(BaseModel):
@@ -33,6 +34,7 @@ class CrawlerAgent(BaseModel):
     number_of_rooms: int
     zip_code: str
     state: str
+    inUse: bool = False
     user_id: int
 
     class Config:

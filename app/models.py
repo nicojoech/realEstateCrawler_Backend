@@ -27,6 +27,7 @@ class CrawlerAgent(Base):
     number_of_rooms = Column(Integer)
     zip_code = Column(String)
     state = Column(String)
+    inUse = Column(Boolean, default=False)
     user_id = Column(Integer, ForeignKey('users.id'))
 
     user = relationship("User", back_populates="crawler_agents")
