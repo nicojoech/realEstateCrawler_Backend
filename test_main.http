@@ -4,7 +4,7 @@ Content-Type: application/json
 {
 "first_name": "Nico",
 "last_name": "Jöch",
-"email": "nico@nicon.com",
+"email": "nico@nicodn.com",
 "username": "nicoJoech",
 "password": "nico"
 }
@@ -28,3 +28,21 @@ Accept: application/json
 ###
 
 DELETE http://127.0.0.1:8000/users/1
+
+###
+POST http://127.0.0.1:8000/agents/
+Content-Type: application/json
+
+{
+  "name": "TestCrawler",
+  "min_area": 75.5,
+  "max_price": 120000.0,
+  "number_of_rooms": 2,
+  "zip_code": "54321",
+  "state": "New York",
+  "rent": true,
+  "type": "Commercial"
+}
+
+###
+DELETE http://127.0.0.1:8000/agents/1
