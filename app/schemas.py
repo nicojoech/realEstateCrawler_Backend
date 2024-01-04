@@ -28,8 +28,8 @@ class TokenData(BaseModel):
 
 class CrawlerAgent(BaseModel):
     name: str
-    min_area: float
-    max_price: float
+    min_area: int
+    max_price: int
     number_of_rooms: int
     zip_code: str
     state: str
