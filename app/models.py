@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, String, Float, Boolean
+from sqlalchemy import Column, Integer, String, Float, Boolean, ForeignKey
+from sqlalchemy.orm import relationship
 
 from .database import Base
 
@@ -13,6 +14,8 @@ class User(Base):
     username = Column(String, unique=True, index=True)
     password = Column(String)
 
+    crawler_agents = relationship("CrawlerAgent", back_populates="user")
+
 
 class CrawlerAgent(Base):
     __tablename__ = 'crawler_agents'
@@ -24,3 +27,6 @@ class CrawlerAgent(Base):
     number_of_rooms = Column(Integer)
     zip_code = Column(String)
     state = Column(String)
+    user_id = Column(Integer, ForeignKey('users.id'))
+
+    user = relationship("User", back_populates="crawler_agents")

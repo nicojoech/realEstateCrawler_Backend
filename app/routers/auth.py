@@ -18,6 +18,6 @@ async def login_for_access_token(
 
 
 # test route to see if a user is logged in
-@router.get("/test")
+@router.get("/currentUser")
 async def test_for_logged_users(current_user: User = Depends(get_current_user)):
-    return {"message": "You are authenticated!", "username": current_user.username}
+    return current_user
