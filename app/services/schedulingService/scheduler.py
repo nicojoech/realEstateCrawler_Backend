@@ -22,7 +22,8 @@ class Scheduler:
     service.stop_crawling()
     """
 
-    def __init__(self, interval_hours: int = 1, duration_hours: int = 24, receiver_email: str | None = None,
+    def __init__(self, interval_hours: int = 1, duration_hours: int = 24, crawler_name: str = "RealEstateCrawler",
+                 receiver_email: str | None = None,
                  crawler_filter: dict | None = None, zip_code: str | None = None, number_of_rooms: int | None = None,
                  state: str | None = None):
         self.interval_hours = interval_hours
@@ -31,10 +32,11 @@ class Scheduler:
         self.zip_code = zip_code
         self.number_of_rooms = number_of_rooms
         self.state = state
+        self.crawler_name = crawler_name
         self.receiver_email = receiver_email
         self.start_time = None
         self.end_time = None
-        self.found_listings = []
+        self.all_found_listings = []
         self.crawling_thread = None
         self.stop_requested = threading.Event()
         self.processed_listings = set()
@@ -63,14 +65,12 @@ class Scheduler:
                                               number_of_rooms=self.number_of_rooms,
                                               state=self.state)
                                  )
+            unique_listings = self.check_for_unique_listings(filtered_listings)
 
-            unique_listings = [listing for listing in filtered_listings if
-                               listing['link'] not in self.processed_listings]
             if unique_listings:
-                self.found_listings.extend(unique_listings)
-                send(self.receiver_email, "Found Listings",
-                     f"New Listings found: \n {format_listings(unique_listings)}")
-                self.processed_listings.update(listing['link'] for listing in unique_listings)
+                self.all_found_listings.extend(unique_listings)
+                send(self.crawler_name, self.receiver_email, "Found Listings",
+                     f"New Listings found:\n{format_listings(unique_listings)}")
 
                 # Use an interruptable wait instead of time.sleep()
                 self.stop_requested.wait(
@@ -80,14 +80,24 @@ class Scheduler:
         # Send final notification
         if self.stop_requested.is_set():
             print("Crawling process has been manually stopped.")
-            send(self.receiver_email, "Crawler Stopped", "Crawling process has been manually stopped.")
-        elif self.found_listings:
-            print(f"Number of findings: {len(self.found_listings)}")
-            send(self.receiver_email, "Crawler Finished",
-                 f"Summary of findings: {format_listings(self.found_listings)}")
+            send(self.crawler_name, self.receiver_email, "Crawler Stopped", "Crawling process has been manually "
+                                                                            "stopped.")
+        elif self.all_found_listings:
+            print(f"Number of findings: {len(self.all_found_listings)}")
+            send(self.crawler_name, self.receiver_email, "Crawler Finished",
+                 f"Summary of findings: {format_listings(self.all_found_listings)}")
         else:
             print("No listings found during the crawling period.")
-            send(self.receiver_email, "Crawler Finished", "No listings found during the crawling period.")
+            send(self.crawler_name, self.receiver_email, "Crawler Finished", "No listings found during the crawling "
+                                                                             "period.")
+
+    def check_for_unique_listings(self, filtered_listings):
+        unique_listings = []
+        for listing in filtered_listings:
+            if listing['link'] not in self.processed_listings:
+                unique_listings.append(listing)
+                self.processed_listings.add(listing['link'])
+        return unique_listings
 
     def start_crawling(self) -> None:
         """
@@ -102,7 +112,7 @@ class Scheduler:
 
         # Optional: Send a notification that the service has started
         print("Crawling service has started.")
-        send(self.receiver_email, "Crawler Started", "Crawling service has started.")
+        send(self.crawler_name, self.receiver_email, "Crawler Started", "Crawling service has started.")
 
     def stop_crawling(self):
         """
@@ -114,11 +124,12 @@ class Scheduler:
             self.crawling_thread.join()
 
 
-def main():
-    service = Scheduler(interval_hours=1, duration_hours=1, receiver_email="wi21b026@technikum-wien.at",
-                        crawler_filter={"max_price": "300", "min_area": "50"}, zip_code="3202", number_of_rooms=2)
-    service.start_crawling()
-
-
-if __name__ == '__main__':
-    main()
+# def main():
+#     service = Scheduler(interval_hours=1, duration_hours=1, crawler_name="Test Crawler",
+#                         receiver_email="wi21b026@technikum-wien.at",
+#                         crawler_filter={"max_price": "200", "min_area": "60"})
+#     service.start_crawling()
+#
+#
+# if __name__ == '__main__':
+#     main()
