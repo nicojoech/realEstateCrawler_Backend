@@ -24,3 +24,22 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     username: str
+
+
+class CrawlerAgent(BaseModel):
+    name: str
+    min_area: int
+    max_price: int
+    number_of_rooms: int
+    zip_code: str
+    state: str
+    rent: bool
+    type: str
+
+    class Config:
+        from_attributes = True
+
+
+class CrawlerAgentResponse(CrawlerAgent):
+    id: int
+

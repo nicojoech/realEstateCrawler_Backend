@@ -4,7 +4,7 @@ Content-Type: application/json
 {
 "first_name": "Nico",
 "last_name": "Jöch",
-"email": "nico@nicon.com",
+"email": "nico@nicodn.com",
 "username": "nicoJoech",
 "password": "nico"
 }
@@ -28,3 +28,21 @@ Accept: application/json
 ###
 
 DELETE http://127.0.0.1:8000/users/1
+
+###
+POST http://127.0.0.1:8000/agents/
+Content-Type: application/json
+
+{
+  "name": "TestCrawler",
+  "min_area": "50",
+  "max_price": "300",
+  "number_of_rooms": 4,
+  "zip_code": "1100",
+  "state": "Wien",
+  "rent": true,
+  "type": "Appartment"
+}
+
+###
+DELETE http://127.0.0.1:8000/agents/1

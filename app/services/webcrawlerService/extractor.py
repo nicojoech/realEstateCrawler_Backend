@@ -156,6 +156,7 @@ class Extractor:
         Filters the data based on ZIP code, number of rooms, and state.
         """
         filtered_data = []
+        print("Filtering extracted data..")
         for entry in data:
             entry_state = self._zip_code_to_state(entry['address']['zip_code'])
 
@@ -172,6 +173,8 @@ class Extractor:
                 continue
 
             filtered_data.append(entry)
+
+        print(f"Found {len(filtered_data)} entries - Extracting data")
 
         return filtered_data
 
