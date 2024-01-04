@@ -70,26 +70,26 @@ class Scheduler:
             if unique_listings:
                 self.all_found_listings.extend(unique_listings)
                 send(self.crawler_name, self.receiver_email, "Found Listings",
-                     f"New Listings found:\n{format_listings(unique_listings)}")
+                     f"<h1>New Listings found:</h1><br>{format_listings(unique_listings)}")
 
                 # Use an interruptable wait instead of time.sleep()
                 self.stop_requested.wait(
-                    self.interval_hours * 3600)  # Wait for the next interval 3600 because hourly in seconds
+                    self.interval_hours * (60 * 60))  # Wait for the next interval 3600 because hourly in seconds
                 # self.interval_hours * 120)  # for testing purposes
 
         # Send final notification
         if self.stop_requested.is_set():
             print("Crawling process has been manually stopped.")
-            send(self.crawler_name, self.receiver_email, "Crawler Stopped", "Crawling process has been manually "
-                                                                            "stopped.")
+            send(self.crawler_name, self.receiver_email, "Crawler Stopped", "<h1>Crawling process has been manually "
+                                                                            "stopped.</h1>")
         elif self.all_found_listings:
             print(f"Number of findings: {len(self.all_found_listings)}")
             send(self.crawler_name, self.receiver_email, "Crawler Finished",
-                 f"Summary of findings: {format_listings(self.all_found_listings)}")
+                 f"<h1>Summary of findings:</h1><br>{format_listings(self.all_found_listings)}")
         else:
             print("No listings found during the crawling period.")
-            send(self.crawler_name, self.receiver_email, "Crawler Finished", "No listings found during the crawling "
-                                                                             "period.")
+            send(self.crawler_name, self.receiver_email, "Crawler Finished", "<h1>No listings found during the crawling "
+                                                                             "period.</h1>")
 
     def check_for_unique_listings(self, filtered_listings):
         unique_listings = []
@@ -112,7 +112,7 @@ class Scheduler:
 
         # Optional: Send a notification that the service has started
         print("Crawling service has started.")
-        send(self.crawler_name, self.receiver_email, "Crawler Started", "Crawling service has started.")
+        send(self.crawler_name, self.receiver_email, "Crawler Started", "<h1>Crawling service has started.</h1>")
 
     def stop_crawling(self):
         """
@@ -124,12 +124,12 @@ class Scheduler:
             self.crawling_thread.join()
 
 
-# def main():
-#     service = Scheduler(interval_hours=1, duration_hours=1, crawler_name="Test Crawler",
-#                         receiver_email="wi21b026@technikum-wien.at",
-#                         crawler_filter={"max_price": "200", "min_area": "60"})
-#     service.start_crawling()
-#
-#
-# if __name__ == '__main__':
-#     main()
+def main():
+    service = Scheduler(interval_hours=1, duration_hours=1, crawler_name="Test Crawler",
+                        receiver_email="wi21b026@technikum-wien.at",
+                        crawler_filter={"max_price": "100", "min_area": "100"})
+    service.start_crawling()
+
+
+if __name__ == '__main__':
+    main()

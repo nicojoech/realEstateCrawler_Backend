@@ -11,6 +11,13 @@ def format_listings(listings: list) -> str:
     :param listings: list of listings to format
     :return: formatted string
     """
+    style_vars = {
+        "listing_style": "margin-bottom: 20px; border: 1px solid #ddd; padding: 15px; border-radius: 5px; background-color: #f9f9f9; min-width: 200px; max-width: 600px; word-break: break-word;",
+        "title_style": "font-family: Arial, sans-serif; color: #333; font-size: 18px; margin-top: 0;",
+        "text_style": "font-family: Arial, sans-serif; color: #555; font-size: 14px;",
+        "button_style": "background-color: #007bff; text-decoration: none; color: white; padding: 8px 15px; border-radius: 5px; font-size: 14px; display: inline-block; margin-top: 10px;"
+    }
+
     formatted_listings = []
     for listing in listings:
         # Format the address
@@ -19,19 +26,32 @@ def format_listings(listings: list) -> str:
         address = ', '.join(address_parts)
 
         # Format the listing details
-        details = (
-            f"Link: https://www.willhaben.at{listing['link']}\n"
-            f"Title: {listing.get('title') or 'N/A'}\n"
-            f"Address: {address}\n"
-            f"Area: {listing.get('area')}m²\n"
-            f"Rooms: {listing.get('number_of_rooms')}\n"
-            f"Additional Info: {listing.get('additional_info', 'N/A')}\n"
-            f"Price: €{listing.get('price')}\n"
-        )
-
+        details = f"""
+        <div class="listing" style="{style_vars['listing_style']}">
+            <h2 style="{style_vars['title_style']}">{listing.get('title') or 'N/A'}</h2>
+            <p style="{style_vars['text_style']}">
+                <strong>Address:</strong> {address}<br>
+                <strong>Area:</strong> {listing.get('area')}m²<br>
+                <strong>Rooms:</strong> {listing.get('number_of_rooms')}<br>
+                <strong>Additional Info:</strong> {listing.get('additional_info', 'N/A')}<br>
+                <strong>Price:</strong> € {listing.get('price') or ' - '}<br>
+                <a href="https://www.willhaben.at{listing['link']}" style="{style_vars['button_style']}">View Listing</a>
+            </p>
+        </div>
+        """
         formatted_listings.append(details)
 
-    return "\n\n".join(formatted_listings)
+    return "<br><br>".join(formatted_listings)
+
+
+def format_html_message(message: str) -> str:
+    return f"""
+    <html>
+        <body>
+                {message}
+        </body>
+    </html>
+    """
 
 
 def is_valid_email(email: str) -> bool:
@@ -59,7 +79,7 @@ def create_message(crawler_name: str, receiver: str, subject: str, body: str) ->
     message["From"] = EMAIL_SENDER
     message["To"] = receiver
     message["Subject"] = f"{crawler_name} - {subject}"
-    message.attach(MIMEText(body, "plain"))
+    message.attach(MIMEText(body, "html"))
 
     return message.as_string()
 
@@ -78,7 +98,7 @@ def send(crawler_name: str, receiver: str, subject: str, body: str) -> None:
         print(f"Invalid email address: {receiver}")
         return
 
-    message = create_message(crawler_name, receiver, subject, body)
+    message = create_message(crawler_name, receiver, subject, format_html_message(body))
     try:
         with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
             # server.set_debuglevel(0)
@@ -88,7 +108,6 @@ def send(crawler_name: str, receiver: str, subject: str, body: str) -> None:
         print(f"Successfully sent email to {receiver}")
     except Exception as e:
         print(f"Failed to send email: {e}")
-
 
 # def main():
 #     #send("Test Crawler", "wi21b026@technikum-wien.at", "Testing Email Service", "This is a test email.")
