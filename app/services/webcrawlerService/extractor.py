@@ -64,7 +64,7 @@ def _extract_title_from_link(link):
     3. Joins the list with spaces and returns the title
     """
 
-    return ' '.join(link.split('/')[-2].split('-')[:-1])
+    return ' '.join(link.split('/')[-2].split('-')[:-1]).title()
 
 
 def _extract_state_from_link(link):
@@ -113,7 +113,7 @@ def _parse_address(address, link):
     zip_and_city = parts[0].split()
     zip_code = zip_and_city[0]
     city = ' '.join(zip_and_city[1:])
-    state = _extract_state_from_link(link)
+    state = _extract_state_from_link(link).capitalize()
 
     street = parts[1] if len(parts) > 1 else None
     district = None
