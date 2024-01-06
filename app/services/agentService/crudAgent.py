@@ -73,7 +73,8 @@ def start_crawler_agent(db: Session, agent_id: int):
         current_in_use = db.query(models.CrawlerAgent.inUse).filter(models.CrawlerAgent.id == agent_id).scalar()
 
         if current_in_use:
-            time.sleep(60)
+            print("still working...")
+            time.sleep(120)
         else:
             break
 
