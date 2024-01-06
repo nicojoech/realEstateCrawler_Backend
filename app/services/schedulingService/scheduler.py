@@ -23,16 +23,18 @@ class Scheduler:
     """
 
     def __init__(self, interval_hours: int = 1, duration_hours: int = 24, crawler_name: str = "RealEstateCrawler",
+                 crawl_all: bool = False,
                  receiver_email: str | None = None,
                  crawler_filter: dict | None = None, zip_code: str | None = None, number_of_rooms: int | None = None,
                  state: str | None = None):
+        self.crawler_name = crawler_name
         self.interval_hours = interval_hours
         self.duration_hours = duration_hours
+        self.crawl_all = crawl_all
         self.crawler_filter = crawler_filter
         self.zip_code = zip_code
         self.number_of_rooms = number_of_rooms
         self.state = state
-        self.crawler_name = crawler_name
         self.receiver_email = receiver_email
         self.start_time = None
         self.end_time = None
@@ -53,7 +55,7 @@ class Scheduler:
         #     "min_area": "50"
         # }
 
-        crawler = Crawler(base_url=url, filters_dict=self.crawler_filter)
+        crawler = Crawler(base_url=url, filters_dict=self.crawler_filter, crawl_all=self.crawl_all)
         while datetime.now() < self.end_time and not self.stop_requested.is_set():
             page_source = crawler.crawl()  # Perform the crawl
 
@@ -125,9 +127,10 @@ class Scheduler:
 
 
 def main():
-    service = Scheduler(interval_hours=1, duration_hours=1, crawler_name="Test Crawler",
+    service = Scheduler(interval_hours=1, duration_hours=1, crawler_name="Test Crawler", crawl_all=True,
                         receiver_email="wi21b026@technikum-wien.at",
-                        crawler_filter={"max_price": "100", "min_area": "100"})
+                        crawler_filter={"max_price": "100", "min_area": ""},
+                        zip_code="4600")
     service.start_crawling()
 
 
