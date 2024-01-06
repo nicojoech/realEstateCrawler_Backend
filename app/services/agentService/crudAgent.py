@@ -1,3 +1,4 @@
+import time
 from time import sleep
 
 from sqlalchemy.orm import Session
@@ -48,6 +49,9 @@ def delete_crawler_agent(db: Session, agent_id: int):
 
 def start_crawler_agent(db: Session, agent_id: int):
     agent_to_start = db.query(models.CrawlerAgent).filter(models.CrawlerAgent.id == agent_id).first()
+    if agent_to_start:
+        agent_to_start.inUse = True
+        db.commit()
 
     crawler_filter = {
         "max_price": agent_to_start.max_price,
@@ -64,4 +68,21 @@ def start_crawler_agent(db: Session, agent_id: int):
     )
 
     service.start_crawling()
+
+    while True:
+        current_in_use = db.query(models.CrawlerAgent.inUse).filter(models.CrawlerAgent.id == agent_id).scalar()
+
+        if current_in_use:
+            time.sleep(60)
+        else:
+            break
+
+    service.stop_crawling()
+
+
+def stop_crawler_agent(db: Session, agent_id: int):
+    agent_to_start = db.query(models.CrawlerAgent).filter(models.CrawlerAgent.id == agent_id).first()
+    if agent_to_start:
+        agent_to_start.inUse = False
+        db.commit()
 
