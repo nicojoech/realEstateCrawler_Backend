@@ -3,6 +3,7 @@ This module provide a crawler class to crawl the willhaben.at website
 It uses selenium to interact with the website and extract the html
 """
 from selenium import webdriver
+from selenium.common import NoSuchElementException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -31,10 +32,11 @@ def _init_driver():
 
 class Crawler:
 
-    def __init__(self, base_url, filters_dict):
+    def __init__(self, base_url, filters_dict, crawl_all=False):
         self.base_url = base_url
         self.driver = None
         self.filters_dict = filters_dict
+        self.crawl_all = crawl_all
 
     def open_page(self, url):
         self.driver.get(url)
@@ -45,8 +47,24 @@ class Crawler:
         )
         button.click()
 
-    def get_page_source(self):
-        return self.driver.page_source
+    def is_next_page_available(self):
+        """
+        Check if there's a 'Next' button available for pagination.
+        """
+        try:
+            next_button = self.driver.find_element(By.XPATH,
+                                                   '//a[@data-testid="pagination-top-next-button" and not('
+                                                   '@aria-disabled="true")]')
+            return next_button.is_enabled()
+        except NoSuchElementException as e:
+            return False
+
+    def go_to_next_page(self):
+        """
+        Click the 'Next' button to navigate to the next page.
+        """
+        next_button = self.driver.find_element(By.XPATH, '//a[@data-testid="pagination-top-next-button"]')
+        next_button.click()
 
     def close_browser(self):
         self.driver.quit()
@@ -80,6 +98,7 @@ class Crawler:
 
     def crawl(self):
         self.driver = _init_driver()
+        page_sources = ""
         try:
             print("Crawling...")
             self.open_page(self.base_url)
@@ -102,16 +121,23 @@ class Crawler:
                 print(f"Could not find or interact with the search button: {e}")
                 return
 
-            # Wait for site to load
-            self.wait_for_site_load()
+            while True:
+                # Wait for site to load and scroll down
+                self.wait_for_site_load()
+                self.scroll_down()
 
-            # Now, scroll to ensure all dynamic content is loaded
-            self.scroll_down()
+                # Append the current page's source to the list
+                page_sources = page_sources + self.driver.page_source
+                # Crawl all pages if the flag is set and there's a 'Next' button available
+                if self.crawl_all and self.is_next_page_available():
+                    print("Crawling next page...")
+                    self.go_to_next_page()
+                    time.sleep(2)  # Adjust this delay as needed
+                else:
+                    break
 
-            page_source = self.driver.page_source
-            self.close_browser()
             print("Crawling finished. Browser closed.")
-            return page_source
+            return page_sources
         finally:
             self.close_browser()
 
