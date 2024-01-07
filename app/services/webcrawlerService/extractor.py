@@ -67,7 +67,7 @@ def _extract_numeric_part(text):
         else:
             match = re.search(r'\d+(\.\d+)?', text)
             if match:
-                return int(match.group())
+                return float(match.group())
     return None
 
 
