@@ -16,9 +16,19 @@ def get_db():
         db.close()
 
 
+@router.get("/agents/{agent_id}", response_model=schemas.CrawlerAgentResponse)
+def get_agent(agent_id: int, db: Session = Depends(get_db)):
+    return crudAgent.get_crawler_agent(db=db, agent_id=agent_id)
+
+
 @router.post("/agents/", response_model=schemas.CrawlerAgentResponse)
 def create_agent(agent: schemas.CrawlerAgent, db: Session = Depends(get_db)):
     return crudAgent.create_crawler_agent(db=db, agent=agent)
+
+
+@router.put("/agents/{agent_id}", response_model=schemas.CrawlerAgentResponse)
+def create_agent(agent_id: int, agent: schemas.CrawlerAgent, db: Session = Depends(get_db)):
+    return crudAgent.update_crawler_agent(db=db,agent_id=agent_id, new_data=agent)
 
 
 @router.delete("/agents/{agent_id}", response_model=schemas.CrawlerAgentResponse)

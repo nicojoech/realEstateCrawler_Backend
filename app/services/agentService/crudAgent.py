@@ -64,7 +64,8 @@ def start_crawler_agent(db: Session, agent_id: int):
         receiver_email="wi21b032@technikum-wien.at",
         crawler_filter=crawler_filter,
         zip_code=agent_to_start.zip_code,
-        number_of_rooms=agent_to_start.number_of_rooms
+        number_of_rooms=agent_to_start.number_of_rooms,
+        state=agent_to_start.state
     )
 
     service.start_crawling()
@@ -74,7 +75,7 @@ def start_crawler_agent(db: Session, agent_id: int):
 
         if current_in_use:
             print("still working...")
-            time.sleep(120)
+            time.sleep(60)
         else:
             break
 
