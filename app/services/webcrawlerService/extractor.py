@@ -8,35 +8,6 @@ import os
 import re
 from datetime import datetime
 
-
-def _zip_code_to_state(zip_code):
-    """
-    Helper function to map zip codes to states.
-    Taken from: http://www.mcca.or.at/info/at/idxplz.htm
-    """
-    if zip_code:
-        first_digit = int(zip_code[0])
-        if first_digit == 1:
-            return 'Wien'
-        elif first_digit == 2:
-            return 'Niederösterreich, Burgenland/Nord'
-        elif first_digit == 3:
-            return 'Niederösterreich'
-        elif first_digit == 4:
-            return 'Oberösterreich'
-        elif first_digit == 5:
-            return 'Salzburg'
-        elif first_digit == 6:
-            return 'Tirol, Vorarlberg'
-        elif first_digit == 7:
-            return 'Burgenland/Süd'
-        elif first_digit == 8:
-            return 'Steiermark'
-        elif first_digit == 9:
-            return 'Kärnten'
-    return None
-
-
 def _extract_text(entry, css_selector=None, tag_name=None, attrs=None, pattern=None):
     """
     Extracts text from an entry based on provided css_selector, tag_name, attrs, or pattern.
@@ -103,7 +74,7 @@ def _extract_numeric_part(text):
 def _parse_address(address, link):
     """
     Parses the address into ZIP Code, City, Street, and District (if applicable).
-    Additionally parses the state from the link.
+    Additionally, parses the state from the link.
     """
     if not address:
         return {"zip_code": None, "state": None, "city": None, "street": None, "district": None}
@@ -183,7 +154,6 @@ class Extractor:
         filtered_data = []
         print("Filtering extracted data..")
         for entry in data:
-            entry_state = _zip_code_to_state(entry['address']['zip_code'])
 
             # Apply ZIP code filter
             if zip_code and entry['address']['zip_code'] != zip_code:
@@ -194,7 +164,7 @@ class Extractor:
                 continue
 
             # Apply state filter
-            if state and entry_state != state:
+            if state and entry['address']['state'] != state:
                 continue
 
             filtered_data.append(entry)
