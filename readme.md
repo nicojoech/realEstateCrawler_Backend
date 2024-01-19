@@ -12,3 +12,5 @@
 ##### interval_hours=1, duration_hours=10 & receiver_email=test@test.com
     --> Crawler Interval = 120 sec (depending on scheduler.py)
     --> Duration = 10 MINUTES (depending on scheduler.py)
+
+Also do not forget to create your env variables for enabling the email connection (see env.template).
