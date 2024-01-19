@@ -9,6 +9,11 @@ from app.services.authService.auth import get_current_user
 
 
 def create_crawler_agent(db: Session, agent: schemas.CrawlerAgent):
+    user = db.query(models.User).filter(models.User.id == agent.user_id).first()
+
+    if user:
+        user.createdAgents += 1
+
     db_agent = models.CrawlerAgent(
         name=agent.name,
         min_area=agent.min_area,
@@ -41,6 +46,11 @@ def update_crawler_agent(db: Session, agent_id: int, new_data: schemas.CrawlerAg
 
 def delete_crawler_agent(db: Session, agent_id: int):
     db_agent = db.query(models.CrawlerAgent).filter(models.CrawlerAgent.id == agent_id).first()
+    user = db.query(models.User).filter(models.User.id == db_agent.user_id).first()
+
+    if user:
+        user.createdAgents -= 1
+
     if db_agent:
         db.delete(db_agent)
         db.commit()
@@ -60,7 +70,7 @@ def start_crawler_agent(db: Session, agent_id: int):
 
     service = Scheduler(
         interval_hours=1,
-        duration_hours=24,
+        duration_hours=10,
         receiver_email="wi21b032@technikum-wien.at",
         crawler_filter=crawler_filter,
         zip_code=agent_to_start.zip_code,

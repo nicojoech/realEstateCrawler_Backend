@@ -1,3 +1,4 @@
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app import schemas, models
@@ -18,6 +19,14 @@ def get_users(db: Session, skip: int = 0, limit: int = 100):
 
 def get_agents_from_user(db: Session, user_id: int):
     return db.query(models.CrawlerAgent).filter(models.CrawlerAgent.user_id == user_id).all()
+
+
+def get_agent_count_from_user(db: Session, user_id: int):
+    return (
+        db.query(func.sum(models.User.createdAgents))
+        .filter(models.User.id == user_id)
+        .scalar()
+    )
 
 
 def create_user(db: Session, user: schemas.UserSchema):

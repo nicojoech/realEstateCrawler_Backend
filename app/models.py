@@ -13,6 +13,7 @@ class User(Base):
     email = Column(String, unique=True, index=True)
     username = Column(String, unique=True, index=True)
     password = Column(String)
+    createdAgents = Column(Integer, default=0)
 
     crawler_agents = relationship("CrawlerAgent", back_populates="user")
 

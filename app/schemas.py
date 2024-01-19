@@ -14,6 +14,7 @@ class UserSchema(BaseModel):
 
 class UserSchemaResponse(UserSchema):
     id: int
+    createdAgents: int
 
 
 class Token(BaseModel):
