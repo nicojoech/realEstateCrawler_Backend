@@ -47,6 +47,15 @@ def get_agents_from_user(user_id: int, db: Session = Depends(get_db)):
     return agents
 
 
+@router.get("/users/{user_id}/count")
+def get_agent_count_from_user(user_id: int, db: Session = Depends(get_db)):
+    db_user = crudUser.get_user(db, user_id=user_id)
+    if db_user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    agents_created = crudUser.get_agent_count_from_user(db, user_id=user_id)
+    return agents_created
+
+
 @router.delete("/users/{user_id}", response_model=schemas.UserSchemaResponse)
 def remove_user(user_id: int, db: Session = Depends(get_db)):
     db_user = crudUser.delete_user(db, user_id=user_id)

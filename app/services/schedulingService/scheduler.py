@@ -76,8 +76,10 @@ class Scheduler:
 
                 # Use an interruptable wait instead of time.sleep()
                 self.stop_requested.wait(
-                    self.interval_hours * (60 * 60))  # Wait for the next interval 3600 because hourly in seconds
+                    self.interval_hours * 120)  # Wait for the next interval 3600 because hourly in seconds
                 # self.interval_hours * 120)  # for testing purposes
+            else:
+                self.stop_requested.wait(self.interval_hours * 120)
 
         # Send final notification
         if self.stop_requested.is_set():
@@ -108,7 +110,7 @@ class Scheduler:
         """
 
         self.start_time = datetime.now()
-        self.end_time = self.start_time + timedelta(hours=self.duration_hours)
+        self.end_time = self.start_time + timedelta(minutes=self.duration_hours)
         crawling_thread = threading.Thread(target=self._crawl)
         crawling_thread.start()
 
